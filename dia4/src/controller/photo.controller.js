@@ -30,7 +30,8 @@ async function modPhoto(request, response){
         if (result.matchedCount > 0) {
             let respuesta = { error: false, codigo: 200, mesaje: "Foto modificada correctamente" };
       response.send(respuesta);
-        } else {
+        } 
+        else {
             let respuesta = { error: false, codigo: 200, mesaje: "No se encuentra la foto" };
       response.send(respuesta);
         }
@@ -39,28 +40,31 @@ async function modPhoto(request, response){
     }
 }
 
-async function delPhoto(request, response){
-    const {usuario, titulo} = request.body;
+async function delPhoto(request, response) {
+    const { usuario, titulo } = request.body;
+
     try {
-        const result = await PhotoModel.deleteOne({ usuario: usuario, titulo: titulo });
-        if (result.deletedCount > 0) {
-            let respuesta = { error: false, codigo: 200, mesaje: "Foto eliminada correctamente" };
-      response.send(respuesta);
-        } else {
-            let respuesta = { error: false, codigo: 200, mesaje: "No se encuentra la foto" };
-      response.send(respuesta);
+        let result;
+        let respuesta;
+
+        if (usuario && titulo) {
+            result = await PhotoModel.deleteOne({ usuario: usuario, titulo: titulo });
+            if (result.deletedCount > 0) {
+                respuesta = { error: false, codigo: 200, mensaje: "Foto eliminada correctamente" };
+            } 
+            else {
+                respuesta = { error: false, codigo: 200, mensaje: "No se encuentra la foto" };
+            }
+        } 
+        else if (usuario) {
+            result = await PhotoModel.deleteMany({ usuario: usuario });
+            respuesta = { error: false, codigo: 200, mensaje: "Todas las fotos del usuario han sido eliminadas" };
+        } 
+        else {
+            respuesta = { error: true, codigo: 200, mensaje: "Se requiere al menos un usuario para eliminar fotos" };
         }
-    } catch (err) {
-        console.log(err);
-    }
-}
 
-async function delAll(request, response){
-    const {usuario} = request.body;
-    try {
-        const result = await PhotoModel.deleteMany({ usuario: usuario });
-        let respuesta = { error: false, codigo: 200, mesaje: "Todas las fotos han sido eliminadas" };
-      response.send(respuesta);
+        response.send(respuesta);
     } catch (err) {
         console.log(err);
     }
@@ -68,4 +72,4 @@ async function delAll(request, response){
 
 
 
-module.exports = {getByUser, newPhoto, modPhoto, delPhoto, delAll};
+module.exports = {getByUser, newPhoto, modPhoto, delPhoto};
